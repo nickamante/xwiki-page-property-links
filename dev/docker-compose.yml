@@ -1,0 +1,53 @@
+# Dev stack for page-property-links local testing.
+# Disposable local dev stack: postgres:18 + xwiki:stable-postgres-tomcat.
+#
+# ENV VAR NAMES confirmed from xwiki-docker README:
+#   DB_USER, DB_PASSWORD, DB_DATABASE, DB_HOST
+#   (https://raw.githubusercontent.com/xwiki/xwiki-docker/master/README.md)
+#
+# POSTGRES DATA PATH: for PostgreSQL >= 17 the data dir moved to /var/lib/postgresql
+#   (not /var/lib/postgresql/data which is for Postgres < 17).
+#   Confirmed from xwiki-docker README: "For PostgreSQL >= 18" uses /var/lib/postgresql
+#
+# XWIKI DATA VOLUME: /usr/local/xwiki (permanent directory, confirmed from README)
+#
+# DO NOT bring this stack up if you already have XWiki running on port 8080 — it will collide.
+# This compose file is for a DEDICATED dev instance. To deploy to your existing running
+# instance instead, use: bash dev/deploy.sh <your-container-name>
+#
+# Start:   docker compose -f dev/docker-compose.yml up -d
+# Stop:    docker compose -f dev/docker-compose.yml down
+# Wipe:    docker compose -f dev/docker-compose.yml down -v   (destroys data volumes)
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: xwiki
+      POSTGRES_USER: xwiki
+      POSTGRES_PASSWORD: xwiki
+    volumes:
+      # PostgreSQL >= 17 moved the data directory to /var/lib/postgresql (no /data subdir).
+      - ppl-pgdata:/var/lib/postgresql
+    restart: unless-stopped
+
+  xwiki:
+    image: xwiki:stable-postgres-tomcat
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      # Confirmed env var names from xwiki-docker README:
+      DB_USER: xwiki
+      DB_PASSWORD: xwiki
+      DB_DATABASE: xwiki
+      DB_HOST: postgres
+    volumes:
+      # XWiki permanent directory (data, extensions, solr index, etc.)
+      - ppl-xwikidata:/usr/local/xwiki
+    restart: unless-stopped
+
+volumes:
+  ppl-pgdata:
+  ppl-xwikidata:

@@ -1,0 +1,6 @@
+{
+  "name": "page-property-links",
+  "image": "maven:3.9-eclipse-temurin-21",
+  "mounts": ["source=ppl-m2,target=/root/.m2,type=volume"],
+  "customizations": { "vscode": { "extensions": ["redhat.java"] } }
+}

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!--
+    Build tooling comes from parent-platform:18.3.0 (the 18.0.0 parent references an unresolved
+    SNAPSHOT enforcer tool, so it cannot be used directly). The platform/commons dependencies are
+    pinned to 18.0.0 — the earliest 18.x release — so the extension compiles against the oldest APIs
+    it supports and installs on XWiki 18.0.0 and newer. Pinning the deps below the parent's cycle
+    drops javax.annotation from the test-harness classpath, so it is re-added as a test dependency
+    below. The parent resolves from https://nexus.xwiki.org/nexus/content/groups/public/.
+  -->
+  <parent>
+    <groupId>org.xwiki.contrib</groupId>
+    <artifactId>parent-platform</artifactId>
+    <version>18.3.0</version>
+  </parent>
+
+  <groupId>org.xwiki.contrib</groupId>
+  <artifactId>page-property-links</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <name>Page Property Links</name>
+  <description>Makes Page-type object-property references behave like real links (backlinks + rename integrity).</description>
+
+  <properties>
+    <!-- Java 21 is required by the XWiki 18.x toolchain (class file version 65.0). -->
+    <xwiki.java.version>21</xwiki.java.version>
+    <!-- Minimum supported XWiki version: the extension is compiled against these APIs and runs on
+         this version and newer. Pinned explicitly because parent-platform:18.3.0 otherwise inherits
+         commons/platform version 18.3.0. -->
+    <commons.version>18.0.0</commons.version>
+    <platform.version>18.0.0</platform.version>
+  </properties>
+
+  <repositories>
+    <!-- XWiki public group — contains releases, snapshots, and contrib artifacts.
+         Required because org.xwiki.contrib:parent-platform and most xwiki-platform
+         artifacts are NOT on Maven Central. -->
+    <repository>
+      <id>xwiki-releases</id>
+      <name>XWiki Nexus Public Group</name>
+      <url>https://nexus.xwiki.org/nexus/content/groups/public/</url>
+      <releases><enabled>true</enabled></releases>
+      <snapshots><enabled>false</enabled></snapshots>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <!-- XWiki build plugins (e.g. xwiki-platform-tool-importmap-plugin) are on XWiki Nexus,
+         not Maven Central. -->
+    <pluginRepository>
+      <id>xwiki-releases</id>
+      <name>XWiki Nexus Public Group</name>
+      <url>https://nexus.xwiki.org/nexus/content/groups/public/</url>
+      <releases><enabled>true</enabled></releases>
+      <snapshots><enabled>false</enabled></snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <build>
+    <plugins>
+      <!--
+        The parent-platform:18.3.0 parent defines enforcer executions backed by custom XWiki
+        enforcer rule classes (ExternalExtensionCheck, ValidateDependencyVersion,
+        BannedDependencyType). Those rules fail to load/instantiate in this standalone,
+        out-of-reactor build, and they are XWiki platform-team-internal QA gates that do not
+        apply to a contrib extension. Disable the affected executions via <phase>none</phase>
+        (the parent hardcodes <skip>false</skip> on enforce-valid-poms, so skip won't work).
+      -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>enforce-valid-poms</id>
+            <phase>none</phase>
+          </execution>
+          <execution>
+            <id>check-dependency-version</id>
+            <phase>none</phase>
+          </execution>
+          <execution>
+            <id>enforcer-banneddependencytype-xar</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <!-- Component framework -->
+    <dependency>
+      <groupId>org.xwiki.commons</groupId>
+      <artifactId>xwiki-commons-component-api</artifactId>
+      <version>${commons.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- Configuration source -->
+    <dependency>
+      <groupId>org.xwiki.commons</groupId>
+      <artifactId>xwiki-commons-configuration-api</artifactId>
+      <version>${commons.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- Observation (AbstractEventListener, Event) -->
+    <dependency>
+      <groupId>org.xwiki.commons</groupId>
+      <artifactId>xwiki-commons-observation-api</artifactId>
+      <version>${commons.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- Solr extractor role, FieldUtils, SolrLinkSerializer -->
+    <dependency>
+      <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-search-solr-api</artifactId>
+      <version>${platform.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- DocumentRenamedEvent -->
+    <dependency>
+      <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-refactoring-api</artifactId>
+      <version>${platform.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- QueryManager / Query (note: query-api was merged into query-manager in platform 18.x) -->
+    <dependency>
+      <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-query-manager</artifactId>
+      <version>${platform.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- XWikiDocument, BaseObject, properties, XWiki, XWikiContext, PropertyClass -->
+    <dependency>
+      <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-oldcore</artifactId>
+      <version>${platform.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Test harness (note: xwiki-commons-test-component was renamed to xwiki-commons-tool-test-component in 18.x) -->
+    <dependency>
+      <groupId>org.xwiki.commons</groupId>
+      <artifactId>xwiki-commons-tool-test-component</artifactId>
+      <version>${commons.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.xwiki.platform</groupId>
+      <artifactId>xwiki-platform-oldcore</artifactId>
+      <version>${platform.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <!--
+      Pinning platform/commons to 18.0.0 (below the parent-platform:18.3.0 cycle) drops the
+      javax.annotation-api transitive from the test classpath, so the component test harness cannot
+      load @Priority. XWiki provides it at runtime; re-add it for tests only.
+    -->
+    <dependency>
+      <groupId>javax.annotation</groupId>
+      <artifactId>javax.annotation-api</artifactId>
+      <version>1.3.2</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
