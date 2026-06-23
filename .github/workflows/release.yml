@@ -1,0 +1,36 @@
+name: Release
+
+# Build the extension and publish the JAR to a GitHub Release whenever a v* tag is pushed.
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write   # required for the gh CLI to create the Release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build (compiles + runs the unit tests, then packages)
+        run: mvn -B -ntp clean package
+
+      - name: Publish GitHub Release with the JAR
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release create "${{ github.ref_name }}"
+          target/page-property-links-*.jar
+          --title "Page Property Links ${{ github.ref_name }}"
+          --generate-notes
