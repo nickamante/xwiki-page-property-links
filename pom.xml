@@ -20,7 +20,7 @@
 
   <groupId>org.xwiki.contrib</groupId>
   <artifactId>page-property-links</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Page Property Links</name>
   <description>Makes Page-type object-property references behave like real links (backlinks + rename integrity).</description>
