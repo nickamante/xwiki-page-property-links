@@ -1,0 +1,4 @@
+org.xwiki.contrib.pagepropertylinks.internal.DefaultPagePropertyLinksConfiguration
+org.xwiki.contrib.pagepropertylinks.internal.DefaultPagePropertyReferenceReader
+org.xwiki.contrib.pagepropertylinks.internal.PagePropertyLinkExtractor
+org.xwiki.contrib.pagepropertylinks.internal.PagePropertyReferenceUpdater
