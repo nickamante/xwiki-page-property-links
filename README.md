@@ -27,9 +27,33 @@ and has no knowledge of any specific application.
 
 ## Installation
 
-Build the JAR (see [Building](#building)) and install it as a core extension: copy
-`page-property-links-<version>.jar` into your XWiki webapp's `WEB-INF/lib/` and restart, or install
-it through the Extension Manager.
+The extension is a single self-contained JAR — every `xwiki-platform-*` dependency is `provided` by
+the running XWiki, so nothing else needs to be deployed alongside it.
+
+**1. Get the JAR** — download a built artifact from the
+[Releases](https://github.com/nickamante/xwiki-page-property-links/releases) page, or build it
+yourself (see [Building](#building)):
+
+```bash
+curl -L -O https://github.com/nickamante/xwiki-page-property-links/releases/download/v1.0.0/page-property-links-1.0.0.jar
+```
+
+**2. Install it as a core extension** — copy the JAR into the XWiki webapp's library directory and
+restart the servlet container. A component JAR is loaded at startup, so a **restart is required** —
+there is no hot reload:
+
+```bash
+cp page-property-links-<version>.jar <tomcat>/webapps/ROOT/WEB-INF/lib/
+```
+
+> **Extension Manager alternative:** installing by ID through *Admin → Extensions* instead requires
+> the artifact to be in a Maven repository the instance can resolve (Maven Central, a private Nexus,
+> or the XWiki extensions repository once published to xwiki-contrib). The file drop above needs no
+> Maven repository.
+
+**3. Reindex (first install only)** — the backlink extractor runs during indexing, so **existing**
+pages need a one-time reindex to gain their `Page`-property backlinks: *Admin → Search → Solr* → run
+the reindex. New and edited pages are indexed incrementally and need no action.
 
 ## Configuration
 
@@ -50,6 +74,29 @@ bash dev/build.sh test            # run the unit tests
 ```
 
 A docker-compose dev stack and a manual in-wiki verification runbook are in [`dev/`](dev/).
+
+## Versioning
+
+Releases follow [semantic versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`) and target the
+**XWiki 18.x** line (see [Compatibility](#compatibility)). `main` carries a `-SNAPSHOT` version for
+ongoing development and is not intended for deployment — install a released version instead.
+
+## Releasing
+
+Releases are automated: pushing a `v*` tag runs the
+[release workflow](.github/workflows/release.yml), which builds, runs the unit tests, and publishes a
+GitHub Release with the JAR attached. To cut a release:
+
+1. In `pom.xml`, set `<version>` to the release version (drop the `-SNAPSHOT` suffix) and commit.
+2. Tag and push — this triggers the workflow:
+   ```bash
+   git tag -a v1.2.3 -m "Page Property Links 1.2.3"
+   git push origin v1.2.3
+   ```
+3. Bump `pom.xml` to the next `-SNAPSHOT` on `main` and commit.
+
+The published JAR appears on the [Releases](https://github.com/nickamante/xwiki-page-property-links/releases)
+page (see [Installation](#installation)).
 
 ## License
 
