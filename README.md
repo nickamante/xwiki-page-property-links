@@ -46,6 +46,10 @@ there is no hot reload:
 cp page-property-links-<version>.jar <tomcat>/webapps/ROOT/WEB-INF/lib/
 ```
 
+> **Dockerized XWiki:** the `WEB-INF/lib` directory lives in the *webapp* inside the container, not
+> in the mounted `/usr/local/xwiki` data volume. `dev/install-release.sh [version] [container]`
+> automates the download, `docker cp` into the webapp, and container restart.
+
 > **Extension Manager alternative:** installing by ID through *Admin → Extensions* instead requires
 > the artifact to be in a Maven repository the instance can resolve (Maven Central, a private Nexus,
 > or the XWiki extensions repository once published to xwiki-contrib). The file drop above needs no
