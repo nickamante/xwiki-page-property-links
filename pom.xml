@@ -24,6 +24,32 @@
   <packaging>jar</packaging>
   <name>Page Property Links</name>
   <description>Makes Page-type object-property references behave like real links (backlinks + rename integrity).</description>
+  <url>https://github.com/nickamante/xwiki-page-property-links</url>
+  <inceptionYear>2026</inceptionYear>
+  <licenses>
+    <license>
+      <name>GNU Lesser General Public License 2.1</name>
+      <url>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>nickamante</id>
+      <name>Nick Amante</name>
+      <url>https://github.com/nickamante</url>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:git://github.com/nickamante/xwiki-page-property-links.git</connection>
+    <developerConnection>scm:git:git@github.com:nickamante/xwiki-page-property-links.git</developerConnection>
+    <url>https://github.com/nickamante/xwiki-page-property-links</url>
+    <tag>HEAD</tag>
+  </scm>
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/nickamante/xwiki-page-property-links/issues</url>
+  </issueManagement>
 
   <properties>
     <!-- Java 21 is required by the XWiki 18.x toolchain (class file version 65.0). -->
